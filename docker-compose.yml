@@ -4,11 +4,26 @@ services:
   app:
     build: .
     restart: unless-stopped
+    env_file:
+      - token.env
     environment:
       - TZ=Asia/Tokyo
-      - SLACK_SIGNING_SECRET=xxxxxxxxxxxxxxxxx
-      - SLACK_BOT_TOKEN=xxxxxxxxxxxxxxxxxx
+    networks:
+      - traefik-net
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.yylabcheckin.loadbalancer.server.port=3000
+
+      - traefik.http.routers.yylabcheckin.entrypoints=websecure
+      - traefik.http.routers.yylabcheckin.rule=Host(`yylabcheckin.gzfrozen.net`)
+      - traefik.http.routers.yylabcheckin.service=yylabcheckin
+      - traefik.http.routers.yylabcheckin.tls=true
+      - traefik.http.routers.yylabcheckin.tls.certresolver=cloudflare
     volumes:
       - ./src:/usr/src/app
-    ports:
-      - 3000:3000
+    expose:
+      - 3000
+
+networks:
+  traefik-net:
+    external: true
