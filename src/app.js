@@ -124,21 +124,21 @@ const app = new App({
 // Listens to incoming messages that contain "hello"
 app.message('hello', async ({ message, say }) => {
   // say() sends a message to the channel where the event was triggered
-  // console.log(message);
-  say(`Hey there <@${message.user}>!`);
+  console.log(message);
+  await say(`Hey there <@${message.user}>!`);
 });
 
 app.command('/hello', async ({ command, ack, say }) => {
-  // console.log(command);
-  ack();
-  say(`Hey there <@${command.user_id}>!`);
+  console.log(command);
+  await ack();
+  await say(`Hey there <@${command.user_id}>!`);
 });
 
 app.event('app_home_opened', async ({ event, context, client }) => {
-  // console.log(event);
+  console.log(event);
   const home_view = return_home(event.user);
 
-  client.views.publish({
+  await client.views.publish({
     token: context.botToken,
     user_id: event.user,
     view: home_view
@@ -146,22 +146,22 @@ app.event('app_home_opened', async ({ event, context, client }) => {
 });
 
 app.action('checkIn', async ({ ack, body, client }) => {
-  ack();
-  // console.log(body);
+  await ack();
+  console.log(body);
   const modal_checkin = return_checkin();
 
-  client.views.open({
+  await client.views.open({
     trigger_id: body.trigger_id,
     view: modal_checkin
   });
 });
 
 app.action('checkOut', async ({ ack, body, client }) => {
-  ack();
-  // console.log(body);
+  await ack();
+  console.log(body);
   const modal_checkout = return_checkout();
 
-  client.views.open({
+  await client.views.open({
     trigger_id: body.trigger_id,
     view: modal_checkout
   });
@@ -173,12 +173,11 @@ app.view('view_checkin', async ({ ack, body, view, client }) => {
     "view": return_success()
   };
 
-  ack(response);
-
-  const body_temp = view['state']['values']['input_a']['temp']['value'];
+  await ack(response);
+  console.log(body);
   const now = dayjs();
 
-  client.chat.postMessage({
+  await client.chat.postMessage({
     channel: channelID,
     text: `<@${body.user.id}> Check In`,
     blocks: [{
@@ -205,11 +204,11 @@ app.view('view_checkout', async ({ ack, body, client }) => {
     "view": return_success()
   };
 
-  ack(response);
-
+  await ack(response);
+  console.log(body);
   const now = dayjs();
 
-  client.chat.postMessage({
+  await client.chat.postMessage({
     channel: channelID,
     text: `<@${body.user.id}> Check Out`,
     blocks: [{
